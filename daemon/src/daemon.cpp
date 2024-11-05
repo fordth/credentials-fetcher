@@ -34,6 +34,7 @@ static void systemd_shutdown_signal_catcher( int signo )
     } while ( 0 )
 
 #define ENV_CF_CRED_SPEC_FILE "CF_CRED_SPEC_FILE"
+#define ENV_CF_KRB_DIR "CF_KRB_DIR"
 
 /**
  * grpc_thread_start - used in pthread_create
@@ -174,13 +175,18 @@ int main( int argc, const char* argv[] )
         exit( EXIT_FAILURE );
     }
 
-    cf_daemon.krb_files_dir = CF_KRB_DIR;
+    if ( getenv(ENV_CF_KRB_DIR) != NULL) {
+        cf_daemon.krb_files_dir = getenv(ENV_CF_KRB_DIR);
+    } else {
+        cf_daemon.krb_files_dir = CF_KRB_DIR;
+    }
+
     cf_daemon.logging_dir = CF_LOGGING_DIR;
     cf_daemon.unix_socket_dir = CF_UNIX_DOMAIN_SOCKET_DIR;
 
     if ( getenv(ENV_CF_CRED_SPEC_FILE) != NULL)
     {
-        int parseResult = parse_cred_file_path( getenv(ENV_CF_CRED_SPEC_FILE), 
+        int parseResult = parse_cred_file_path( getenv(ENV_CF_CRED_SPEC_FILE),
                                                 cred_file,
                                                 cred_file_lease_id);
 
@@ -239,14 +245,14 @@ int main( int argc, const char* argv[] )
 
     if ( !cf_daemon.cred_file.empty() ) {
         cf_daemon.cf_logger.logger( LOG_INFO, "Credential file exists %s", cf_daemon.cred_file.c_str() );
-        
+
         int specFileReturn = ProcessCredSpecFile(cf_daemon.krb_files_dir, cf_daemon.cred_file, cf_daemon.cf_logger, cred_file_lease_id);
         if (specFileReturn == EXIT_FAILURE) {
             std::cout << "ProcessCredSpecFile() non 0 " << std::endl;
             exit( EXIT_FAILURE );
         }
     }
-    
+
     /* Create one pthread for gRPC processing */
     pthread_status =
         create_pthread( grpc_thread_start, grpc_thread_name, -1 );
@@ -258,7 +264,7 @@ int main( int argc, const char* argv[] )
     }
     grpc_pthread = pthread_status.second;
     cf_daemon.cf_logger.logger( LOG_INFO, "grpc pthread is at %p", grpc_pthread );
-        
+
     /* Create pthread for refreshing krb tickets */
     pthread_status =
         create_pthread( refresh_krb_tickets_thread_start, "krb_ticket_refresh_thread", -1 );

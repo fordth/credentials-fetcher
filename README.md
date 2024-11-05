@@ -12,7 +12,7 @@ You can also use yum if dnf is not present.
 The daemon can be started using `sudo systemctl start credentials-fetcher`.
 
 On Enterprise Linux 9 ( RHEL | CentOS | AlmaLinux ), the binary can be installed from EPEL. To add EPEL, see the [EPEL Quickstart](_https://docs.fedoraproject.org/en-US/epel/#_quickstart_).
-Once EPEL is enabled, install credentials-fetcher with 
+Once EPEL is enabled, install credentials-fetcher with
 `sudo dnf install credentials-fetcher`.
 
 For other linux distributions, the daemon binary needs to be built from source code.
@@ -105,9 +105,10 @@ journalctl -u credentials-fetcher
 
 #### Runtime environment variables
 
-| Environment Variable        | Examples values                          | Description                                                                                  |
-| :-------------------------- | ---------------------------------------- | :------------------------------------------------------------------------------------------- |
-| `CF_CRED_SPEC_FILE`         | '/var/credentials-fetcher/my-credspec.json' | Path to a credential spec file used as input. (Lease id default: credspec) |
+| Environment Variable        | Examples values                                       | Description                                                               |
+| :-------------------------- | ----------------------------------------------------- | :------------------------------------------------------------------------ |
+| `CF_KRB_DIR`                | '/var/credentials-fetcher/krbdir'                     | *(Overrides Default)* Dir path for storing the kerberos tickets           |
+| `CF_CRED_SPEC_FILE`         | '/var/credentials-fetcher/my-credspec.json'           | Path to a credential spec file used as input. (Lease id default: credspec)|
 |                             | '/var/credentials-fetcher/my-credspec.json:myLeaseId' | An optional lease id specified after a colon
 
 ## Compatibility
